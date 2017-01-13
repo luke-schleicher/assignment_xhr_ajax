@@ -87,6 +87,7 @@ var $ = {
   },
 
   ajax: function(userOptions) {
+
     var options = {
       async: true,
       method: 'GET',
@@ -94,6 +95,7 @@ var $ = {
       headers: {},
       url: window.location.href,
     };
+
     Object.assign(options, userOptions);
 
     var xhr = new XMLHttpRequest();
@@ -102,7 +104,7 @@ var $ = {
       var statusText;
       if (xhr.status >= 200 && xhr.status < 300) {
         statusText = "success";
-        options.success(xhr.responseText, statusText);
+        options.success(xhr.responseText, statusText, xhr);
       } else {
         statusText = "error";
         var errorThrown = $.httpStatuses[String(xhr.status)];
@@ -114,42 +116,54 @@ var $ = {
 
     xhr.open(options.method, options.url, options.async);
 
-    xhr.send();
+    for (var key in options.headers) {
+      xhr.setRequestHeader(key, options.headers[key] );
+    }
+
+    xhr.send(options.data);
+
   },
+
+
+
+  get: function(options) {
+
+    options.method = "GET";
+
+    $.ajax(options);
+
+  },
+
+  post: function(options) {
+
+    options.method = "POST";
+
+    $.ajax(options);
+
+  },
+
+
+
 };
 
 var sampleOptions = {
 
-  // url: 'https://reqres.in/api/users/-1',
+  url: 'https://reqres.in/api/users/',
   data: 'name=Morpheus&job=leader',
   async: true,
   method: 'GET',
-  headers: { },
+  headers: { "Content-type": "application/x-www-form-urlencoded", },
 
-  success: function() {
-    console.log("success");
+  success: function(data, status, xhr) {
+    console.log("success", data, status, xhr);
   },
 
   error: function(responseText, statusText, errorThrown) {
-    console.log(responseText, statusText, errorThrown);
+    console.log("error", responseText, statusText, errorThrown);
   },
 
   complete: function(responseText, statusText) {
-    console.log(responseText, statusText);
+    console.log("complete", responseText, statusText);
   },
 
 };
-
-
-
-
-
-
-
-// Create a post
-// var xhr = new XMLHttpRequest();
-// xhr.addEventListener( "load", function(){
-//     console.log( this.responseText );
-// });
-// xhr.open("POST", "http://reqres.in/api/posts", true);
-// xhr.send("title=Foo&body=Bar&userId=1");
